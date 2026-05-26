@@ -1,0 +1,6 @@
+{
+  "name": "Memory Scrapbook",
+  "description": "A nostalgic pink-themed digital scrapbook for birthdays and anniversaries where users can upload photos, music, notes, and bouquets. Features scratch-reveal polaroids and a memorable experiences calendar.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
