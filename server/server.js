@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 
 import scrapbookRoutes from "./routes/scrapbookRoutes.js";
-
+import dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
 const app = express();
 
 app.use(cors());
