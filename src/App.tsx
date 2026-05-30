@@ -570,7 +570,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                       <input
                         id="input-new-board-title"
                         type="text"
-                        placeholder="John's 30th Birthday Wishes! 🎂"
+                        placeholder="John's 30th Birthday Wishes!"
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
                         required
@@ -621,9 +621,9 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                           onChange={(e) => setNewType(e.target.value as any)}
                           className="w-full text-xs bg-white border border-pink-200 rounded-lg p-3 text-pink-[#831843] focus:ring-1 focus:ring-pink-300"
                         >
-                          <option value="birthday">Birthday  🧁</option>
-                          <option value="anniversary">Anniversary 🌸</option>
-                          <option value="other">General Love & Admiration 💕</option>
+                          <option value="birthday">Birthday</option>
+                          <option value="anniversary">Anniversary</option>
+                          <option value="other">General Love & Admiration</option>
                         </select>
                       </div>
 
