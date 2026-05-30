@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useLayoutEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Trash2, Heart } from "lucide-react";
 
@@ -24,35 +24,44 @@ export default function ScratchCard({
 }: ScratchCardProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isScratched, setIsScratched] = useState(false);
+  const [isScratched, setIsScratched] = useState(initialScratched);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [isRevealed, setIsRevealed] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(initialScratched);
+  const [canvasReady, setCanvasReady] = useState(false);
 
-  // Initialize canvas with a gorgeous custom shades-of-pink scratch-off paint overlay
-  useEffect(() => {
-    if (isRevealed || !canvasRef.current || !containerRef.current) return;
+  // Paint the scratch overlay onto the canvas.
+  // We use a small setTimeout to ensure the container has non-zero dimensions
+  // after the browser has done its first layout pass.
+  const paintCanvas = () => {
+    if (!canvasRef.current || !containerRef.current) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
 
-    // Set dimensions matching the polaroid photo container
     const width = containerRef.current.clientWidth;
     const height = containerRef.current.clientHeight;
+
+    // If dimensions are still zero, retry after another frame
+    if (width === 0 || height === 0) {
+      setTimeout(paintCanvas, 50);
+      return;
+    }
+
     canvas.width = width;
     canvas.height = height;
 
-    // Paint layered pink paint with cute speckles and scratch text
+    // Layered pink gradient paint
     const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, "#FF85A1"); // Rose pink
-    gradient.addColorStop(0.5, "#FFA6C9"); // Sweet blush pink
-    gradient.addColorStop(1, "#F72585"); // Deep raspberry
+    gradient.addColorStop(0, "#FF85A1");
+    gradient.addColorStop(0.5, "#FFA6C9");
+    gradient.addColorStop(1, "#F72585");
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    // Dynamic cute golden/white speckles for a nostalgic glittery scratch paint feel
+    // Golden/white speckles
     for (let i = 0; i < 60; i++) {
-      ctx.fillStyle = i % 2 === 0 ? "rgba(255, 255, 255, 0.45)" : "rgba(255, 215, 0, 0.45)";
+      ctx.fillStyle = i % 2 === 0 ? "rgba(255,255,255,0.45)" : "rgba(255,215,0,0.45)";
       const x = Math.random() * width;
       const y = Math.random() * height;
       const r = Math.random() * 2 + 1;
@@ -61,7 +70,7 @@ export default function ScratchCard({
       ctx.fill();
     }
 
-    // Scratch message instructions
+    // Instruction text
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "italic 600 16px 'Inter', sans-serif";
     ctx.textAlign = "center";
@@ -69,33 +78,39 @@ export default function ScratchCard({
     ctx.shadowColor = "rgba(0,0,0,0.3)";
     ctx.shadowBlur = 4;
     ctx.fillText("Scratch to Reveal ✨", width / 2, height / 2);
+
+    setCanvasReady(true);
+  };
+
+  // Repaint whenever the card is freshly mounted or src changes
+  useEffect(() => {
+    if (isRevealed) return;
+    // Reset canvas-ready flag on each fresh mount
+    setCanvasReady(false);
+    const timer = setTimeout(paintCanvas, 30);
+    return () => clearTimeout(timer);
   }, [isRevealed, src]);
 
-  // Scratch Drawing Functions (Mouse + Touch)
+  // ── Scratch drawing helpers ──────────────────────────────────────────────
+
   const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
     if (!canvasRef.current) return { x: 0, y: 0 };
     const rect = canvasRef.current.getBoundingClientRect();
-    
-    // Check if touch event
     if ("touches" in e) {
       if (e.touches.length === 0) return { x: 0, y: 0 };
       return {
         x: e.touches[0].clientX - rect.left,
         y: e.touches[0].clientY - rect.top,
       };
-    } else {
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
     }
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     if (isRevealed) return;
     setIsDrawing(true);
-    
+
     const { x, y } = getCoordinates(e);
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -106,7 +121,6 @@ export default function ScratchCard({
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.globalCompositeOperation = "destination-out";
-    
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(x, y);
@@ -125,7 +139,6 @@ export default function ScratchCard({
     ctx.lineTo(x, y);
     ctx.stroke();
 
-    // Debounce the pixel checking calculation slightly for UI fluid feel
     if (Math.random() < 0.15) {
       checkScratchedPercent(ctx, canvas.width, canvas.height);
     }
@@ -136,9 +149,7 @@ export default function ScratchCard({
     if (!canvasRef.current || isRevealed) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    if (ctx) {
-      checkScratchedPercent(ctx, canvas.width, canvas.height);
-    }
+    if (ctx) checkScratchedPercent(ctx, canvas.width, canvas.height);
   };
 
   const checkScratchedPercent = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
@@ -146,26 +157,20 @@ export default function ScratchCard({
       const imgData = ctx.getImageData(0, 0, width, height);
       const pixels = imgData.data;
       let clearPixels = 0;
-      
-      // Sample alpha values to be fast and lightweight
-      const sampleRate = 32;
       let monitoredCount = 0;
+      const sampleRate = 32;
       for (let i = 3; i < pixels.length; i += sampleRate) {
         monitoredCount++;
-        if (pixels[i] === 0) {
-          clearPixels++;
-        }
+        if (pixels[i] === 0) clearPixels++;
       }
-      
       const percentage = (clearPixels / monitoredCount) * 100;
-      if (percentage > 45) { // When 45% of cover is scratched, reveal the entire photo!
+      if (percentage > 45) {
         setIsRevealed(true);
         setIsScratched(true);
         onScratchComplete(id);
       }
     } catch (err) {
-      // In case of cross-origin local security caveats with getImageData
-      console.warn("Could not calculate scratch ratio automatically", err);
+      console.warn("Could not calculate scratch ratio", err);
     }
   };
 
@@ -186,12 +191,12 @@ export default function ScratchCard({
       transition={{ duration: 0.4 }}
       className="relative p-3 pb-6 bg-white border border-pink-100 rounded-none shadow-[0_4px_16px_rgba(244,63,94,0.08)] inline-block w-full max-w-sm aspect-[4/5] flex flex-col justify-between"
     >
-      {/* Tape Effect at top */}
+      {/* Tape Effect */}
       <div className="absolute top-[-10px] left-1/3 right-1/3 h-5 bg-pink-100/70 border-x border-pink-200/50 rotate-[-1deg] backdrop-blur-xs flex items-center justify-center text-[8px] font-mono tracking-widest text-pink-400/80 uppercase select-none pointer-events-none">
         ★ Sweet Memories ★
       </div>
 
-      {/* Main Polaroid Image Wrapper */}
+      {/* Polaroid Image */}
       <div
         ref={containerRef}
         className="relative w-full aspect-square bg-pink-50 overflow-hidden select-none"
@@ -203,7 +208,10 @@ export default function ScratchCard({
           referrerPolicy="no-referrer"
         />
 
-        {/* Scratch Canvas Cover Layer */}
+        {/* Scratch Canvas — only rendered when NOT revealed.
+            The canvas is always present in the DOM when !isRevealed so the
+            ref is available for paintCanvas(); opacity-0 until canvasReady
+            prevents a flash of transparent (fully-see-through) canvas. */}
         {!isRevealed && (
           <canvas
             ref={canvasRef}
@@ -214,11 +222,11 @@ export default function ScratchCard({
             onTouchStart={startDrawing}
             onTouchMove={draw}
             onTouchEnd={stopDrawing}
-            className="absolute top-0 left-0 w-full h-full cursor-pointer touch-none z-10"
+            className={`absolute top-0 left-0 w-full h-full cursor-pointer touch-none z-10 transition-opacity duration-150 ${canvasReady ? "opacity-100" : "opacity-0"}`}
           />
         )}
 
-        {/* Success Glitter Highlight */}
+        {/* Glitter reveal flash */}
         <AnimatePresence>
           {isRevealed && !initialScratched && (
             <motion.div
@@ -233,7 +241,7 @@ export default function ScratchCard({
         </AnimatePresence>
       </div>
 
-      {/* Decorative Hearts Ribbon and Metadata Details */}
+      {/* Caption & controls */}
       <div className="mt-3 flex flex-col justify-between flex-grow">
         <p className="font-handwriting text-pink-700 text-xl text-center leading-tight line-clamp-2 px-1">
           "{caption}"

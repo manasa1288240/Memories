@@ -38,6 +38,12 @@ export default function App() {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isSharedView, setIsSharedView] = useState(false);
   const [bootstrapped, setBootstrapped] = useState(false);
+
+  // Counter that increments every time preview mode is toggled.
+  // Using a counter (instead of a boolean) means the ScratchCard key is always
+  // a NEW value on each toggle, so React always fully unmounts/remounts the card
+  // and the scratch state is truly reset — even when toggling back to the same mode.
+  const [previewToggleCount, setPreviewToggleCount] = useState(0);
   
   // Create board form state
   const [newTitle, setNewTitle] = useState("");
@@ -63,6 +69,21 @@ export default function App() {
   // Link copy visual feedback state
   const [copiedLink, setCopiedLink] = useState(false);
   const [activeCraftTab, setActiveCraftTab] = useState<"photo" | "note" | "bouquet" | "music" | "calendar" | null>(null);
+
+  // Helper that sets preview mode AND bumps the toggle counter so scratch cards remount fresh
+  const switchToPreview = () => {
+    setIsPreviewMode(true);
+    setPreviewToggleCount((c) => c + 1);
+    setIsPhotoFormOpen(false);
+    setIsNoteFormOpen(false);
+  };
+
+  const switchToEdit = () => {
+    setIsPreviewMode(false);
+    setPreviewToggleCount((c) => c + 1);
+    setIsPhotoFormOpen(false);
+    setIsNoteFormOpen(false);
+  };
 
   // Parse URL path and load scrapbook on mount
   useEffect(() => {
@@ -431,12 +452,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                     <div className="bg-pink-50 p-1 rounded-full flex items-center border border-pink-200 mr-1 shadow-inner">
                       <button
                         id="toggle-mode-edit"
-                        onClick={() => {
-                          setIsPreviewMode(false);
-                          // Turn on forms
-                          setIsPhotoFormOpen(false);
-                          setIsNoteFormOpen(false);
-                        }}
+                        onClick={switchToEdit}
                         className={`px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold transition-all duration-150 flex items-center gap-1 cursor-pointer select-none ${
                           !isPreviewMode 
                             ? "bg-pink-500 text-white shadow-xs" 
@@ -447,12 +463,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                       </button>
                       <button
                         id="toggle-mode-preview"
-                        onClick={() => {
-                          setIsPreviewMode(true);
-                          // Close form dialogs
-                          setIsPhotoFormOpen(false);
-                          setIsNoteFormOpen(false);
-                        }}
+                        onClick={switchToPreview}
                         className={`px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold transition-all duration-150 flex items-center gap-1 cursor-pointer select-none ${
                           isPreviewMode 
                             ? "bg-pink-500 text-white shadow-xs" 
@@ -783,7 +794,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
 
                   <button
                     id="exit-preview-banner-btn"
-                    onClick={() => setIsPreviewMode(false)}
+                    onClick={switchToEdit}
                     className="px-5 py-2.5 bg-white text-pink-600 hover:bg-pink-50 active:scale-95 duration-100 rounded-full text-xs font-bold cursor-pointer flex items-center gap-1.5 shrink-0 shadow-sm"
                   >
                     ✍️ Return to Editor Mode
@@ -800,7 +811,6 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                 <div className="absolute left-2.5 md:left-4.5 top-10 bottom-10 w-6 flex flex-col justify-between pointer-events-none select-none z-10 opacity-70">
                   {Array.from({ length: 14 }).map((_, i) => (
                     <div key={i} className="w-4.5 h-4.5 rounded-full bg-[#eadecb] border border-pink-900/10 shadow-[inset_0_2px_3px_rgba(0,0,0,0.15)] flex items-center justify-center">
-                      {/* Spiral comb line wire connector */}
                       <div className="w-2.5 h-10 bg-gradient-to-r from-stone-400 via-stone-200 to-stone-400 rounded-full rotate-[15deg] -translate-x-2.5 -translate-y-0.5 opacity-60 shadow-xs" />
                     </div>
                   ))}
@@ -810,7 +820,6 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                   
                   {/* Ledger Header details inside paper */}
                   <div className="border-b border-pink-200/60 pb-5 flex justify-between items-center flex-wrap gap-4 relative">
-                    {/* Washi tape topper visual */}
                     <div className="absolute -top-7.5 left-20 w-32 h-6 bg-[linear-gradient(45deg,_#fbcfe8_25%,_#f472b6_25%,_#f472b6_50%,_#fbcfe8_50%,_#fbcfe8_75%,_#f472b6_75%)] bg-[size:10px_10px] opacity-25 border border-pink-100 rotate-[-1deg] pointer-events-none" />
                     
                     <div>
@@ -828,7 +837,6 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                   {/* Top Layer desk: Vinyl Jukebox Player Center & Virtual Diary Calendar Side-By-Side */}
                   <div className={activeBoard.showCalendar ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "max-w-2xl mx-auto w-full"}>
                     
-                    {/* Interactive Vinyl Room (only show when there are dedicated tracks) */}
                     {activeBoard.musics && activeBoard.musics.length > 0 && (
                       <div className="bg-[#fdf9fc] border border-[#f5ebf4] p-5 rounded-[2.5rem] shadow-xs relative overflow-hidden">
                         <div className="absolute top-2 right-4 px-2.5 py-0.5 bg-pink-100/60 text-[9px] font-mono font-black text-pink-500 rounded uppercase tracking-wider">
@@ -843,7 +851,6 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                       </div>
                     )}
 
-                    {/* Interactive Memory Milestone Diary Calendar */}
                     {activeBoard.showCalendar && (
                       <div className="bg-[#fafbfd] border border-teal-100/70 p-5 rounded-[2.5rem] shadow-xs relative overflow-hidden animate-fadeIn">
                         <div className="absolute top-2 right-4 px-2.5 py-0.5 bg-teal-50 text-[9px] font-mono font-black text-teal-500 rounded uppercase tracking-wider">
@@ -869,10 +876,13 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-start">
                         
-                        {/* POLAROID SCRATCH CARDS */}
+                        {/* POLAROID SCRATCH CARDS
+                            Key uses previewToggleCount so every mode switch — including
+                            toggling back to the same mode — produces a brand-new key,
+                            forcing React to fully unmount and remount the card fresh. */}
                         {activeBoard.photos.map((ph) => (
                           <ScratchCard
-                            key={`${ph.id}-${isPreviewMode}`}
+                            key={`${ph.id}-${previewToggleCount}`}
                             id={ph.id}
                             src={ph.src}
                             caption={ph.caption}
@@ -913,7 +923,6 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                               </button>
                             )}
 
-                            {/* Mini Bouquet rendering */}
                             <div className="relative h-28 flex items-center justify-center bg-pink-50/30 rounded-2xl mb-4 overflow-hidden">
                               <div
                                 className={`absolute bottom-0 w-20 h-14 z-10 origin-bottom rounded-b-xl transition-all duration-300 ${
@@ -1234,7 +1243,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                             <BouquetMaker
                               bouquets={activeBoard.bouquets}
                               onAddBouquet={handleAddBouquet}
-                              onDeleteBouquet={undefined} // handled below in collage
+                              onDeleteBouquet={undefined}
                               readOnly={false}
                             />
                           </div>
@@ -1246,7 +1255,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                             <MusicRoom
                               musics={activeBoard.musics}
                               onAddMusic={handleAddMusic}
-                              onDeleteMusic={undefined} // handled below in collage
+                              onDeleteMusic={undefined}
                               readOnly={false}
                             />
                           </div>
@@ -1258,7 +1267,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                             <MemoryCalendar
                               events={activeBoard.calendarEvents}
                               onAddEvent={handleAddCalendarEvent}
-                              onDeleteEvent={undefined} // handled below in collage
+                              onDeleteEvent={undefined}
                               readOnly={false}
                             />
                           </div>
