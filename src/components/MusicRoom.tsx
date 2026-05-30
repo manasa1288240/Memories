@@ -1,11 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "motion/react";
 import { MusicItem } from "../types";
-import { Play, Pause, Music, Upload, Trash2, Heart, CheckCircle2 } from "lucide-react";
+import { Music, Trash2, Heart, CheckCircle2, Play, Pause } from "lucide-react";
+import YouTube from "react-youtube";
+
+const getYoutubeId = (url: string) => {
+  const regExp =
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|music\.youtube\.com\/watch\?v=)([^&]+)/;
+  const match = url.match(regExp);
+  return match ? match[1] : "";
+};
 
 interface MusicRoomProps {
   musics: MusicItem[];
-  onAddMusic: (music: Omit<MusicItem, "id"> & { customFile?: string, title?: string }) => void;
+  onAddMusic: (music: Omit<MusicItem, "id"> & { youtubeUrl?: string; title?: string }) => void;
   onDeleteMusic?: (id: string) => void;
   readOnly?: boolean;
 }
@@ -16,15 +24,18 @@ export default function MusicRoom({
   onDeleteMusic,
   readOnly = false,
 }: MusicRoomProps) {
-  // Try to use the first dedicated song as the initial loop if one exists
   const hasMusics = musics.length > 0;
   const firstMusic = hasMusics ? musics[0] : null;
 
   const [selectedTrackId, setSelectedTrackId] = useState<string>(firstMusic ? firstMusic.id : "");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentAudioUrl, setCurrentAudioUrl] = useState<string>(firstMusic ? (firstMusic.customFile || "") : "");
+  const [currentYoutubeUrl, setCurrentYoutubeUrl] = useState<string>(
+    firstMusic?.youtubeUrl || ""
+  );
   const [currentTitle, setCurrentTitle] = useState<string>(
-    firstMusic ? (firstMusic.title || `Dedicated Song by ${firstMusic.creator} 🎵`) : "No Song Dedicated Yet 🎧"
+    firstMusic
+      ? firstMusic.title || `Dedicated Song by ${firstMusic.creator} 🎵`
+      : "No Song Dedicated Yet 🎧"
   );
 
   // Form states
@@ -32,119 +43,41 @@ export default function MusicRoom({
   const [songUrl, setSongUrl] = useState("");
   const [creator, setCreator] = useState("");
   const [message, setMessage] = useState("");
-  const [customAudioBase64, setCustomAudioBase64] = useState<string | null>(null);
-  const [customFileName, setCustomFileName] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Auto-select first track when the list becomes populated and nothing was selected before
-  useEffect(() => {
-    if (musics.length > 0 && !currentAudioUrl) {
-      const first = musics[0];
-      setSelectedTrackId(first.id);
-      setCurrentAudioUrl(first.customFile || "");
-      setCurrentTitle(first.title || `Dedicated Song by ${first.creator} 🎵`);
-    }
-  }, [musics, currentAudioUrl]);
-
-  // Manage playing states
-  useEffect(() => {
-    if (!currentAudioUrl) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      }
-      return;
-    }
-
-    if (!audioRef.current) {
-      audioRef.current = new Audio(currentAudioUrl);
-      audioRef.current.loop = true;
-    } else {
-      audioRef.current.pause();
-      audioRef.current.src = currentAudioUrl;
-      audioRef.current.load();
-      if (isPlaying) {
-        audioRef.current.play().catch(err => console.log("Audio play blocked", err));
-      }
-    }
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-    };
-  }, [currentAudioUrl]);
+  const ytPlayerRef = useRef<any>(null);
 
   const togglePlayback = () => {
-    if (!currentAudioUrl) {
-      alert("Please dedicate or select a song loop first!");
-      return;
-    }
-    if (!audioRef.current) return;
-
+    if (!ytPlayerRef.current) return;
     if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
+      ytPlayerRef.current.pauseVideo();
     } else {
-      audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch(err => {
-          console.warn("Audio constraints prevent direct play until user interaction", err);
-          setIsPlaying(true);
-        });
+      ytPlayerRef.current.playVideo();
     }
   };
 
   const playMusicItem = (m: MusicItem) => {
     setSelectedTrackId(m.id);
-    setCurrentAudioUrl(m.customFile || "");
+    setCurrentYoutubeUrl(m.youtubeUrl || "");
     setCurrentTitle(m.title || `Dedicated Song by ${m.creator} 🎵`);
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("audio/")) {
-      alert("Please upload a valid audio (MP3/WAV/AAC) file!");
-      return;
-    }
-
-    if (file.size > 8 * 1024 * 1024) {
-      alert("This file is a bit large. Please select an audio file under 8MB!");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      setCustomAudioBase64(base64);
-      setCustomFileName(file.name);
-      setSongUrl(""); // clear link if uploaded
-      if (!songTitle.trim()) {
-        const cleanName = file.name.replace(/\.[^/.]+$/, ""); // strip extension
-        setSongTitle(cleanName);
-      }
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!songTitle.trim()) {
-      alert("Please enter a Song Title details!");
+      alert("Please enter a Song Title!");
       return;
     }
     if (!creator.trim()) {
-      alert("Please enter your name to sign the music loop dedication!");
+      alert("Please enter your name to sign the music dedication!");
       return;
     }
-
-    const finalAudioSource = customAudioBase64 || songUrl.trim();
-    if (!finalAudioSource) {
-      alert("Please provide an audio link/source URL or upload a device file!");
+    if (!songUrl.trim()) {
+      alert("Please provide a YouTube URL!");
+      return;
+    }
+    if (!getYoutubeId(songUrl.trim())) {
+      alert("Please provide a valid YouTube URL!");
       return;
     }
 
@@ -152,23 +85,36 @@ export default function MusicRoom({
       trackId: "custom",
       creator: creator.trim(),
       message: message.trim() || "Dedicated a beautiful cozy music loop",
-      customFile: finalAudioSource,
-      title: songTitle.trim()
+      youtubeUrl: songUrl.trim(),
+      title: songTitle.trim(),
     });
 
-    // Clear fields
     setSongTitle("");
     setSongUrl("");
     setCreator("");
     setMessage("");
-    setCustomAudioBase64(null);
-    setCustomFileName(null);
 
     setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 4500);
+    setTimeout(() => setShowSuccess(false), 4500);
   };
+
+  // Hidden YouTube player — audio only, no visible video
+  const youtubePlayer = currentYoutubeUrl ? (
+    <div className="absolute w-0 h-0 overflow-hidden pointer-events-none opacity-0">
+      <YouTube
+        videoId={getYoutubeId(currentYoutubeUrl)}
+        opts={{
+          width: "1",
+          height: "1",
+          playerVars: { autoplay: 0 },
+        }}
+        onReady={(e) => { ytPlayerRef.current = e.target; }}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnd={() => setIsPlaying(false)}
+      />
+    </div>
+  ) : null;
 
   if (readOnly) {
     return (
@@ -178,13 +124,15 @@ export default function MusicRoom({
             <h3 className="font-serif text-xl font-bold text-pink-900 flex items-center gap-2">
               <span>📻</span> Vintage Music Jukebox
             </h3>
-            <p className="text-xs text-pink-500">Listen to custom tracks dedicated by friends and loved ones!</p>
+            <p className="text-xs text-pink-500">
+              Listen to tracks dedicated by friends and loved ones!
+            </p>
           </div>
         </div>
 
-        {/* Vintage Record Player */}
+        {/* Vinyl Disc + Player */}
         <div className="bg-white p-5 rounded-3xl border border-pink-100 shadow-sm flex flex-col sm:flex-row items-center justify-center gap-6">
-          {/* Vinyl Disc Spin Graphic */}
+          {/* Spinning Vinyl */}
           <div className="relative w-32 h-32 flex-shrink-0 flex items-center justify-center bg-slate-50 rounded-full border border-pink-50 p-1 shadow-xs">
             <motion.div
               animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
@@ -193,55 +141,46 @@ export default function MusicRoom({
             >
               <div className="w-24 h-24 rounded-full border border-slate-700/60 flex items-center justify-center">
                 <div className="w-18 h-18 rounded-full border border-slate-700/40 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-pink-300 border-[3px] border-pink-400 flex items-center justify-center text-[10px]" />
+                  <div className="w-12 h-12 rounded-full bg-pink-300 border-[3px] border-pink-400" />
                 </div>
               </div>
             </motion.div>
             <div className="absolute w-3.5 h-3.5 rounded-full bg-slate-100 border-2 border-slate-400 z-10 shadow-xs" />
           </div>
 
-          {/* Controls & Track Details */}
-          <div className="flex-grow text-center sm:text-left space-y-3 w-full">
-            <div className="space-y-1">
-              <span className="text-[9px] font-mono tracking-wider uppercase bg-pink-50 px-2 py-0.5 rounded text-pink-500 border border-pink-100">
-                Playing Track
-              </span>
-              <h4 className="font-serif text-sm md:text-base font-bold text-pink-950 mt-1.5 line-clamp-2 min-h-[1.5rem]">{currentTitle}</h4>
-              <p className="text-[10px] font-mono text-pink-400/90 font-semibold font-bold">
-                {isPlaying ? "⚡ Record Spinning..." : "⏸ Paused"}
-              </p>
-            </div>
-
-            <div className="flex items-center justify-center sm:justify-start gap-3 pt-1">
-              <button
-                id="vinyl-play-toggle-btn-readonly"
-                onClick={togglePlayback}
-                disabled={!currentAudioUrl}
-                className={`flex items-center gap-2 px-4 py-2 text-white text-xs font-bold rounded-xl shadow-md duration-150 cursor-pointer ${
-                  !currentAudioUrl 
-                    ? "bg-stone-300 cursor-not-allowed text-stone-500 shadow-none" 
-                    : "bg-pink-600 hover:bg-pink-700 active:bg-pink-800"
-                }`}
-              >
-                {isPlaying ? (
-                  <>
-                    <Pause className="w-4 h-4" /> Pause
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 fill-white ml-0.5" /> Play
-                  </>
-                )}
-              </button>
-            </div>
+          {/* Track Info */}
+          <div className="flex-grow text-center sm:text-left space-y-2 w-full">
+            <span className="text-[9px] font-mono tracking-wider uppercase bg-pink-50 px-2 py-0.5 rounded text-pink-500 border border-pink-100">
+              Playing Track
+            </span>
+            <h4 className="font-serif text-sm md:text-base font-bold text-pink-950 mt-1.5 line-clamp-2 min-h-[1.5rem]">
+              {currentTitle}
+            </h4>
+            <p className="text-[10px] font-mono text-pink-400/90 font-bold">
+              {isPlaying ? "⚡ Record Spinning..." : "⏸ Paused"}
+            </p>
+            <button
+              onClick={togglePlayback}
+              disabled={!currentYoutubeUrl}
+              className={`mt-2 flex items-center gap-2 px-4 py-2 text-white text-xs font-bold rounded-xl shadow-md duration-150 cursor-pointer ${
+                !currentYoutubeUrl
+                  ? "bg-stone-300 cursor-not-allowed text-stone-500 shadow-none"
+                  : "bg-pink-600 hover:bg-pink-700 active:bg-pink-800"
+              }`}
+            >
+              {isPlaying ? <><Pause className="w-4 h-4" /> Pause</> : <><Play className="w-4 h-4 fill-white ml-0.5" /> Play</>}
+            </button>
           </div>
         </div>
 
-        {/* Unified Custom Track List Selection */}
+        {/* Hidden audio player */}
+        {youtubePlayer}
+
+        {/* Track List */}
         <div className="w-full">
           <div className="bg-white/90 p-5 rounded-3xl border border-pink-100/70 shadow-2xs">
             <h4 className="text-[10px] font-mono font-black text-pink-500 uppercase tracking-wider mb-3 pb-1.5 border-b border-pink-50 flex items-center gap-1.5 justify-between">
-              <span>📻 SELECT SOUNDTRACK LOOP</span>
+              <span>📻 SELECT SOUNDTRACK</span>
               <span className="bg-pink-100/60 px-2 py-0.5 text-[9px] tracking-normal font-bold rounded-full text-pink-700">
                 {musics.length} Active Tracks
               </span>
@@ -249,8 +188,10 @@ export default function MusicRoom({
 
             {musics.length === 0 ? (
               <div className="py-12 text-center bg-pink-50/10 rounded-2xl border border-dashed border-pink-100/50">
-                <p className="text-xs italic text-pink-400">Jukebox lacks custom music loops</p>
-                <p className="text-[9px] text-pink-300 mt-1 font-mono">Use the contribution corner below to upload or paste a song!</p>
+                <p className="text-xs italic text-pink-400">Jukebox has no tracks yet</p>
+                <p className="text-[9px] text-pink-300 mt-1 font-mono">
+                  Use the contribution corner to paste a YouTube link!
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[280px] overflow-y-auto pr-1">
@@ -275,7 +216,6 @@ export default function MusicRoom({
                           by {m.creator}
                         </span>
                       </div>
-                      
                       {m.message && (
                         <p className="italic text-pink-700 font-serif mt-1.5 text-[11px] leading-snug line-clamp-1">
                           "{m.message}"
@@ -294,19 +234,18 @@ export default function MusicRoom({
 
   return (
     <div id="music-room" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      {/* Dedication and Upload Form */}
-      <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-pink-100 shadow-sm space-y-6 animate-fadeIn">
+      {/* Dedication Form */}
+      <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-pink-100 shadow-sm space-y-6">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-pink-100 rounded-xl text-pink-600">
             <Music className="w-6 h-6" />
           </div>
           <div>
             <h3 className="font-serif text-xl font-bold text-pink-900">Custom Song Dedicator</h3>
-            <p className="text-xs text-pink-500">Share a custom audio URL or upload an audio file from your device!</p>
+            <p className="text-xs text-pink-500">Paste a YouTube link to dedicate a song!</p>
           </div>
         </div>
 
-        {/* Input Details */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-3">
             <div>
@@ -324,55 +263,19 @@ export default function MusicRoom({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">
-                  Audio URL (Direct MP3 link)
-                </label>
-                <input
-                  id="input-music-url"
-                  type="url"
-                  placeholder="https://example.com/song.mp3"
-                  value={songUrl}
-                  disabled={!!customAudioBase64}
-                  onChange={(e) => setSongUrl(e.target.value)}
-                  className="w-full text-sm bg-pink-50/35 border border-pink-200 rounded-lg p-2.5 text-pink-900 focus:ring-1 focus:ring-pink-300 outline-none disabled:opacity-50"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">
-                  Or Upload MP3 File
-                </label>
-                <div className="relative">
-                  <label className="flex items-center justify-center gap-1.5 w-full p-2.5 bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold rounded-lg cursor-pointer transition-all border border-pink-200">
-                    <Upload className="w-3.5 h-3.5" />
-                    {customFileName ? "Change File" : "Select Audio File"}
-                    <input
-                      id="music-file-upload-input"
-                      type="file"
-                      accept="audio/*"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-                {customFileName && (
-                  <div className="mt-1 flex items-center justify-between text-[10px] text-green-700 font-mono">
-                    <span>✓ {customFileName} ready!</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCustomAudioBase64(null);
-                        setCustomFileName(null);
-                      }}
-                      className="text-pink-400 hover:text-red-500 font-semibold"
-                    >
-                      Clear File
-                    </button>
-                  </div>
-                )}
-              </div>
+            <div>
+              <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">
+                YouTube URL
+              </label>
+              <input
+                id="input-music-url"
+                type="url"
+                placeholder="https://youtube.com/watch?v=..."
+                value={songUrl}
+                onChange={(e) => setSongUrl(e.target.value)}
+                required
+                className="w-full text-sm bg-pink-50/35 border border-pink-200 rounded-lg p-2.5 text-pink-900 focus:ring-1 focus:ring-pink-300 outline-none"
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-1">
@@ -427,14 +330,15 @@ export default function MusicRoom({
         )}
       </div>
 
-      {/* Record player Vinyl Visuals */}
+      {/* Player + Dedications Feed */}
       <div className="lg:col-span-5 flex flex-col gap-6">
-        <div className="bg-pink-50 p-6 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
-          <p className="text-[10px] font-mono tracking-widest uppercase text-pink-400 font-bold mb-4">
+        <div className="bg-pink-50 p-6 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center gap-4">
+          <p className="text-[10px] font-mono tracking-widest uppercase text-pink-400 font-bold">
             Live Jukebox Player
           </p>
 
-          <div className="relative w-44 h-44 mb-6 flex items-center justify-center">
+          {/* Spinning Vinyl */}
+          <div className="relative w-44 h-44 flex items-center justify-center">
             <motion.div
               animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
               transition={{ repeat: Infinity, duration: 4.5, ease: "linear" }}
@@ -443,7 +347,7 @@ export default function MusicRoom({
               <div className="w-40 h-40 rounded-full border border-slate-700/60 flex items-center justify-center">
                 <div className="w-32 h-32 rounded-full border border-slate-700/60 flex items-center justify-center">
                   <div className="w-24 h-24 rounded-full border border-slate-700/40 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-pink-300 border-4 border-pink-400 flex items-center justify-center text-[10px]" />
+                    <div className="w-16 h-16 rounded-full bg-pink-300 border-4 border-pink-400" />
                   </div>
                 </div>
               </div>
@@ -451,28 +355,32 @@ export default function MusicRoom({
             <div className="absolute w-4 h-4 rounded-full bg-slate-100 border-2 border-slate-400 z-10 shadow-xs" />
           </div>
 
-          <div className="text-center space-y-1 px-4 mb-4 w-full">
-            <h4 className="font-serif text-sm font-semibold text-pink-900 line-clamp-1">{currentTitle}</h4>
+          <div className="text-center space-y-1 px-4 w-full">
+            <h4 className="font-serif text-sm font-semibold text-pink-900 line-clamp-1">
+              {currentTitle}
+            </h4>
             <p className="text-[10px] font-mono text-pink-400">
               {isPlaying ? "📻 Record Spinning..." : "⏸ Paused"}
             </p>
           </div>
 
           <button
-            id="vinyl-play-toggle-btn"
             onClick={togglePlayback}
-            disabled={!currentAudioUrl}
-            className={`p-4 text-white rounded-full shadow-md hover:shadow-lg duration-150 transform hover:scale-105 cursor-pointer ${
-              !currentAudioUrl
+            disabled={!currentYoutubeUrl}
+            className={`p-4 text-white rounded-full shadow-md duration-150 transform hover:scale-105 cursor-pointer ${
+              !currentYoutubeUrl
                 ? "bg-stone-300 cursor-not-allowed text-stone-500 hover:scale-100 shadow-none"
-                : "bg-pink-500 hover:bg-pink-600 active:bg-pink-700 hover:shadow-pink-400"
+                : "bg-pink-500 hover:bg-pink-600 active:bg-pink-700"
             }`}
           >
             {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 fill-white ml-0.5" />}
           </button>
+
+          {/* Hidden audio player */}
+          {youtubePlayer}
         </div>
 
-        {/* Existing Dedications Feed */}
+        {/* Dedications Feed */}
         <div className="bg-white p-4 rounded-xl border border-pink-100 shadow-xs max-h-[180px] overflow-y-auto">
           <h4 className="text-xs font-mono font-bold text-pink-500 uppercase mb-3 flex items-center gap-1.5 pb-2 border-b border-pink-100">
             🎶 dedications ({musics.length})
@@ -483,7 +391,10 @@ export default function MusicRoom({
           ) : (
             <div className="space-y-3">
               {musics.map((m) => (
-                <div key={m.id} className="text-xs bg-pink-50/30 p-2.5 border border-pink-100/50 rounded-lg flex justify-between items-start">
+                <div
+                  key={m.id}
+                  className="text-xs bg-pink-50/30 p-2.5 border border-pink-100/50 rounded-lg flex justify-between items-start"
+                >
                   <div className="max-w-[85%]">
                     <button
                       onClick={() => playMusicItem(m)}
@@ -491,7 +402,9 @@ export default function MusicRoom({
                     >
                       🎵 {m.title || "Custom Dedication"}
                     </button>
-                    {m.message && <p className="italic text-pink-600 font-serif mt-1">"{m.message}"</p>}
+                    {m.message && (
+                      <p className="italic text-pink-600 font-serif mt-1">"{m.message}"</p>
+                    )}
                     <p className="text-[9px] font-mono text-pink-400 mt-1">
                       by <span className="font-semibold text-pink-500">{m.creator}</span>
                     </p>

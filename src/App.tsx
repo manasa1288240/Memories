@@ -300,14 +300,19 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
   };
 
   // MUTATION: 4. Dedicate Music tune
-  const handleAddMusic = (m: Omit<MusicItem, "id"> & { customFile?: string, title?: string }) => {
+  const handleAddMusic = (
+  m: Omit<MusicItem, "id"> & {
+    youtubeUrl?: string;
+    title?: string;
+  }
+) => {
     if (!activeBoard) return;
     const newMusic: MusicItem = {
       id: `music-${Date.now()}`,
       trackId: m.trackId,
       creator: m.creator,
       message: m.message,
-      customFile: m.customFile,
+      youtubeUrl: m.youtubeUrl,
       title: m.title,
     };
 

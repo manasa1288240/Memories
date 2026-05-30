@@ -28,7 +28,7 @@ export interface MusicItem {
   trackId: string;
   creator: string;
   message: string;
-  customFile?: string;
+  youtubeUrl?: string;
   title?: string;
 }
 
