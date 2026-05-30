@@ -209,23 +209,23 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
     reader.readAsDataURL(file);
   };
 
-  // Set individual photo scratched complete status
   const handleScratchComplete = (pId: string) => {
-    if (!activeBoard) return;
-    const updatedPhotos = activeBoard.photos.map((ph) => {
-      if (ph.id === pId) {
-        return { ...ph, scratched: true };
-      }
-      return ph;
-    });
+  if (!activeBoard) return;
 
-    const updated = {
-      ...activeBoard,
-      photos: updatedPhotos,
-    };
-    setActiveBoard(updated);
-  
+  const updatedPhotos = activeBoard.photos.map((ph) => {
+    if (ph.id === pId) {
+      return { ...ph, scratched: true };
+    }
+    return ph;
+  });
+
+  const updated = {
+    ...activeBoard,
+    photos: updatedPhotos,
   };
+
+  setActiveBoard(updated);
+};
 
   const handleDeletePhoto = (pId: string) => {
     if (!activeBoard || !confirm("Delete this polaroid photo permanently?")) return;
@@ -872,12 +872,12 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                         {/* POLAROID SCRATCH CARDS */}
                         {activeBoard.photos.map((ph) => (
                           <ScratchCard
-                            key={ph.id}
+                            key={`${ph.id}-${isPreviewMode}`}
                             id={ph.id}
                             src={ph.src}
                             caption={ph.caption}
                             creator={ph.creator}
-                            scratched={ph.scratched}
+                            scratched={false}
                             onScratchComplete={handleScratchComplete}
                             onDelete={isPreviewMode ? undefined : handleDeletePhoto}
                           />

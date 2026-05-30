@@ -24,9 +24,9 @@ export default function ScratchCard({
 }: ScratchCardProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isScratched, setIsScratched] = useState(initialScratched);
+  const [isScratched, setIsScratched] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [isRevealed, setIsRevealed] = useState(initialScratched);
+  const [isRevealed, setIsRevealed] = useState(false);
 
   // Initialize canvas with a gorgeous custom shades-of-pink scratch-off paint overlay
   useEffect(() => {
