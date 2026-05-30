@@ -15,7 +15,6 @@ const FLOWERS = [
   { name: "Pink Tulip 🌷", color: "text-pink-400", label: "Pink Tulip" },
   { name: "Peony Blossom 🌸", color: "text-pink-300", label: "Peony Blossom" },
   { name: "Rustic Carnation 🌺", color: "text-red-400", label: "Rustic Carnation" },
-  { name: "Baby's Breath 🌾", color: "text-cream-400", label: "Baby's Breath" },
 ];
 
 const WRAPS = [
@@ -38,7 +37,7 @@ export default function BouquetMaker({
   onDeleteBouquet,
   readOnly = false,
 }: BouquetMakerProps) {
-  const [selectedFlowers, setSelectedFlowers] = useState<string[]>(["Blush Rose 🌹", "Pink Tulip 🌷", "Baby's Breath 🌾"]);
+  const [selectedFlowers, setSelectedFlowers] = useState<string[]>(["Blush Rose 🌹", "Pink Tulip 🌷"]);
   const [selectedWrap, setSelectedWrap] = useState<"vintage" | "brown" | "pink-lace" | "white-silk">("vintage");
   const [selectedRibbon, setSelectedRibbon] = useState<"pink" | "red" | "gold" | "none">("pink");
   const [message, setMessage] = useState("");

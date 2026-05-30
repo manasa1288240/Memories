@@ -413,7 +413,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
               {activeBoard ? activeBoard.title : "Our Eternal Scrapbook"}
             </h1>
             <p className="text-pink-400 text-[10px] md:text-xs tracking-widest uppercase mt-0.5 font-sans font-semibold">
-              {activeBoard ? `Celebrating with ${activeBoard.recipient}` : "Celebrating 5 Years of Magic"}
+              {activeBoard ? `Celebrating with ${activeBoard.recipient}` : "Celebrating the joy of knowing each other"}
             </p>
           </div>
 
@@ -486,16 +486,6 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                 )}
               </>
             )}
-            
-            {!activeBoard && (
-              <button
-                id="header-try-demo-btn"
-                onClick={loadDemoBoard}
-                className="px-5 py-2 bg-pink-100 hover:bg-pink-200 text-pink-700 text-xs font-bold rounded-full transition-all cursor-pointer shadow-sm"
-              >
-                Try Live Sample Account 📚
-              </button>
-            )}
           </div>
         </div>
       </header>
@@ -544,9 +534,6 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                     <p className="font-serif text-lg font-bold italic text-yellow-100 leading-snug drop-shadow-md">
                       Celebrate Love & Nostalgia
                     </p>
-                    <p className="text-[10px] text-pink-100/90 font-mono mt-2 italic">
-                      Shades of Pink Theme
-                    </p>
                   </div>
 
                   <div className="text-right pt-2 border-t border-rose-450">
@@ -573,7 +560,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                   <form onSubmit={handleCreateScrapbook} className="space-y-4">
                     <div>
                       <label className="block text-[11px] font-mono font-bold text-pink-600 uppercase mb-1">
-                        Scrapbook Header Action Title
+                        Scrapbook Title
                       </label>
                       <input
                         id="input-new-board-title"
@@ -589,7 +576,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-[11px] font-mono font-bold text-pink-600 uppercase mb-1">
-                          Loved One / Recipient Name
+                          Recipient Name
                         </label>
                         <input
                           id="input-new-board-recipient"
@@ -604,7 +591,7 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
 
                       <div>
                         <label className="block text-[11px] font-mono font-bold text-pink-600 uppercase mb-1">
-                          Organizer / Group Name
+                          Sender Name
                         </label>
                         <input
                           id="input-new-board-creator"
@@ -629,8 +616,8 @@ const handleCreateScrapbook = (e: React.FormEvent) => {
                           onChange={(e) => setNewType(e.target.value as any)}
                           className="w-full text-xs bg-white border border-pink-200 rounded-lg p-3 text-pink-[#831843] focus:ring-1 focus:ring-pink-300"
                         >
-                          <option value="birthday">Birthday Cake Surprise 🧁</option>
-                          <option value="anniversary">Love anniversary 🌸</option>
+                          <option value="birthday">Birthday  🧁</option>
+                          <option value="anniversary">Anniversary 🌸</option>
                           <option value="other">General Love & Admiration 💕</option>
                         </select>
                       </div>
