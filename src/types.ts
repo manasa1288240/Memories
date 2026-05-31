@@ -45,7 +45,13 @@ export interface Scrapbook {
   title: string;
   recipient: string;
   creator: string;
-  theme: "Blush Whisper" | "Vintage Rose" | "Cherry Blossom" | "Berry Romance";
+  theme:
+  | "Cherry Blossom"
+  | "Ocean Breeze"
+  | "Lavender Dreams"
+  | "Sage Serenity"
+  | "Golden Sunflower"
+  | "Berry Romance";
   type: "birthday" | "anniversary" | "other";
   createdAt: string;
   photos: PhotoItem[];

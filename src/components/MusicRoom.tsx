@@ -5,8 +5,7 @@ import { Music, Trash2, Heart, CheckCircle2, Play, Pause } from "lucide-react";
 import YouTube from "react-youtube";
 
 const getYoutubeId = (url: string) => {
-  const regExp =
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|music\.youtube\.com\/watch\?v=)([^&]+)/;
+  const regExp = /(?:youtube\.com\/watch\?v=|youtu\.be\/|music\.youtube\.com\/watch\?v=)([^&]+)/;
   const match = url.match(regExp);
   return match ? match[1] : "";
 };
@@ -16,29 +15,31 @@ interface MusicRoomProps {
   onAddMusic: (music: Omit<MusicItem, "id"> & { youtubeUrl?: string; title?: string }) => void;
   onDeleteMusic?: (id: string) => void;
   readOnly?: boolean;
+  /** Full Tailwind class string for themed buttons, e.g. "bg-sky-500 hover:bg-sky-600 text-white" */
+  buttonClass?: string;
 }
+
+const DEFAULT_BUTTON = "bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white shadow-md shadow-pink-200";
 
 export default function MusicRoom({
   musics,
   onAddMusic,
   onDeleteMusic,
   readOnly = false,
+  buttonClass = DEFAULT_BUTTON,
 }: MusicRoomProps) {
   const hasMusics = musics.length > 0;
   const firstMusic = hasMusics ? musics[0] : null;
 
   const [selectedTrackId, setSelectedTrackId] = useState<string>(firstMusic ? firstMusic.id : "");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentYoutubeUrl, setCurrentYoutubeUrl] = useState<string>(
-    firstMusic?.youtubeUrl || ""
-  );
+  const [currentYoutubeUrl, setCurrentYoutubeUrl] = useState<string>(firstMusic?.youtubeUrl || "");
   const [currentTitle, setCurrentTitle] = useState<string>(
     firstMusic
       ? firstMusic.title || `Dedicated Song by ${firstMusic.creator} 🎵`
       : "No Song Dedicated Yet 🎧"
   );
 
-  // Form states
   const [songTitle, setSongTitle] = useState("");
   const [songUrl, setSongUrl] = useState("");
   const [creator, setCreator] = useState("");
@@ -64,22 +65,10 @@ export default function MusicRoom({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!songTitle.trim()) {
-      alert("Please enter a Song Title!");
-      return;
-    }
-    if (!creator.trim()) {
-      alert("Please enter your name to sign the music dedication!");
-      return;
-    }
-    if (!songUrl.trim()) {
-      alert("Please provide a YouTube URL!");
-      return;
-    }
-    if (!getYoutubeId(songUrl.trim())) {
-      alert("Please provide a valid YouTube URL!");
-      return;
-    }
+    if (!songTitle.trim()) { alert("Please enter a Song Title!"); return; }
+    if (!creator.trim()) { alert("Please enter your name to sign the music dedication!"); return; }
+    if (!songUrl.trim()) { alert("Please provide a YouTube URL!"); return; }
+    if (!getYoutubeId(songUrl.trim())) { alert("Please provide a valid YouTube URL!"); return; }
 
     onAddMusic({
       trackId: "custom",
@@ -89,25 +78,16 @@ export default function MusicRoom({
       title: songTitle.trim(),
     });
 
-    setSongTitle("");
-    setSongUrl("");
-    setCreator("");
-    setMessage("");
-
+    setSongTitle(""); setSongUrl(""); setCreator(""); setMessage("");
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 4500);
   };
 
-  // Hidden YouTube player — audio only, no visible video
   const youtubePlayer = currentYoutubeUrl ? (
     <div className="absolute w-0 h-0 overflow-hidden pointer-events-none opacity-0">
       <YouTube
         videoId={getYoutubeId(currentYoutubeUrl)}
-        opts={{
-          width: "1",
-          height: "1",
-          playerVars: { autoplay: 0 },
-        }}
+        opts={{ width: "1", height: "1", playerVars: { autoplay: 0 } }}
         onReady={(e) => { ytPlayerRef.current = e.target; }}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
@@ -124,15 +104,12 @@ export default function MusicRoom({
             <h3 className="font-serif text-xl font-bold text-pink-900 flex items-center gap-2">
               <span>📻</span> Vintage Music Jukebox
             </h3>
-            <p className="text-xs text-pink-500">
-              Listen to tracks dedicated by friends and loved ones!
-            </p>
+            <p className="text-xs text-pink-500">Listen to tracks dedicated by friends and loved ones!</p>
           </div>
         </div>
 
-        {/* Vinyl Disc + Player */}
+        {/* Vinyl + player */}
         <div className="bg-white p-5 rounded-3xl border border-pink-100 shadow-sm flex flex-col sm:flex-row items-center justify-center gap-6">
-          {/* Spinning Vinyl */}
           <div className="relative w-32 h-32 flex-shrink-0 flex items-center justify-center bg-slate-50 rounded-full border border-pink-50 p-1 shadow-xs">
             <motion.div
               animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
@@ -148,7 +125,6 @@ export default function MusicRoom({
             <div className="absolute w-3.5 h-3.5 rounded-full bg-slate-100 border-2 border-slate-400 z-10 shadow-xs" />
           </div>
 
-          {/* Track Info */}
           <div className="flex-grow text-center sm:text-left space-y-2 w-full">
             <span className="text-[9px] font-mono tracking-wider uppercase bg-pink-50 px-2 py-0.5 rounded text-pink-500 border border-pink-100">
               Playing Track
@@ -162,10 +138,10 @@ export default function MusicRoom({
             <button
               onClick={togglePlayback}
               disabled={!currentYoutubeUrl}
-              className={`mt-2 flex items-center gap-2 px-4 py-2 text-white text-xs font-bold rounded-xl shadow-md duration-150 cursor-pointer ${
+              className={`mt-2 flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl shadow-md duration-150 cursor-pointer ${
                 !currentYoutubeUrl
                   ? "bg-stone-300 cursor-not-allowed text-stone-500 shadow-none"
-                  : "bg-pink-600 hover:bg-pink-700 active:bg-pink-800"
+                  : buttonClass
               }`}
             >
               {isPlaying ? <><Pause className="w-4 h-4" /> Pause</> : <><Play className="w-4 h-4 fill-white ml-0.5" /> Play</>}
@@ -173,10 +149,9 @@ export default function MusicRoom({
           </div>
         </div>
 
-        {/* Hidden audio player */}
         {youtubePlayer}
 
-        {/* Track List */}
+        {/* Track list */}
         <div className="w-full">
           <div className="bg-white/90 p-5 rounded-3xl border border-pink-100/70 shadow-2xs">
             <h4 className="text-[10px] font-mono font-black text-pink-500 uppercase tracking-wider mb-3 pb-1.5 border-b border-pink-50 flex items-center gap-1.5 justify-between">
@@ -189,9 +164,7 @@ export default function MusicRoom({
             {musics.length === 0 ? (
               <div className="py-12 text-center bg-pink-50/10 rounded-2xl border border-dashed border-pink-100/50">
                 <p className="text-xs italic text-pink-400">Jukebox has no tracks yet</p>
-                <p className="text-[9px] text-pink-300 mt-1 font-mono">
-                  Use the contribution corner to paste a YouTube link!
-                </p>
+                <p className="text-[9px] text-pink-300 mt-1 font-mono">Use the contribution corner to paste a YouTube link!</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[280px] overflow-y-auto pr-1">
@@ -232,9 +205,10 @@ export default function MusicRoom({
     );
   }
 
+  // ── Edit mode ──────────────────────────────────────────────────────────────
   return (
     <div id="music-room" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      {/* Dedication Form */}
+      {/* Dedication form */}
       <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-pink-100 shadow-sm space-y-6">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-pink-100 rounded-xl text-pink-600">
@@ -249,9 +223,7 @@ export default function MusicRoom({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">
-                Song Title
-              </label>
+              <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">Song Title</label>
               <input
                 id="input-music-title"
                 type="text"
@@ -262,11 +234,8 @@ export default function MusicRoom({
                 className="w-full text-sm bg-pink-50/35 border border-pink-200 rounded-lg p-2.5 text-pink-900 focus:ring-1 focus:ring-pink-300 outline-none"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">
-                YouTube URL
-              </label>
+              <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">YouTube URL</label>
               <input
                 id="input-music-url"
                 type="url"
@@ -277,12 +246,9 @@ export default function MusicRoom({
                 className="w-full text-sm bg-pink-50/35 border border-pink-200 rounded-lg p-2.5 text-pink-900 focus:ring-1 focus:ring-pink-300 outline-none"
               />
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-1">
               <div className="md:col-span-8">
-                <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">
-                  Dedication Message
-                </label>
+                <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">Dedication Message</label>
                 <input
                   id="input-music-dedication-msg"
                   type="text"
@@ -292,11 +258,8 @@ export default function MusicRoom({
                   className="w-full text-sm bg-pink-50/35 border border-pink-200 rounded-lg p-2.5 text-pink-900 focus:ring-1 focus:ring-pink-300 outline-none"
                 />
               </div>
-
               <div className="md:col-span-4">
-                <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">
-                  Your Name
-                </label>
+                <label className="block text-xs font-mono font-bold text-pink-600 uppercase mb-1">Your Name</label>
                 <input
                   id="input-music-creator"
                   type="text"
@@ -314,7 +277,7 @@ export default function MusicRoom({
             <button
               id="submit-music-dedication-btn"
               type="submit"
-              className="px-6 py-2.5 bg-pink-600 hover:bg-pink-700 active:bg-pink-800 text-white font-medium text-sm rounded-xl shadow-md flex items-center gap-2 cursor-pointer duration-150"
+              className={`px-6 py-2.5 ${buttonClass} font-medium text-sm rounded-xl flex items-center gap-2 cursor-pointer duration-150`}
             >
               <Heart className="w-4 h-4 fill-white animate-pulse" />
               Dedicate Song 🎧
@@ -330,14 +293,12 @@ export default function MusicRoom({
         )}
       </div>
 
-      {/* Player + Dedications Feed */}
+      {/* Player + dedications feed */}
       <div className="lg:col-span-5 flex flex-col gap-6">
         <div className="bg-pink-50 p-6 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center gap-4">
-          <p className="text-[10px] font-mono tracking-widest uppercase text-pink-400 font-bold">
-            Live Jukebox Player
-          </p>
+          <p className="text-[10px] font-mono tracking-widest uppercase text-pink-400 font-bold">Live Jukebox Player</p>
 
-          {/* Spinning Vinyl */}
+          {/* Spinning vinyl */}
           <div className="relative w-44 h-44 flex items-center justify-center">
             <motion.div
               animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
@@ -356,31 +317,27 @@ export default function MusicRoom({
           </div>
 
           <div className="text-center space-y-1 px-4 w-full">
-            <h4 className="font-serif text-sm font-semibold text-pink-900 line-clamp-1">
-              {currentTitle}
-            </h4>
-            <p className="text-[10px] font-mono text-pink-400">
-              {isPlaying ? "📻 Record Spinning..." : "⏸ Paused"}
-            </p>
+            <h4 className="font-serif text-sm font-semibold text-pink-900 line-clamp-1">{currentTitle}</h4>
+            <p className="text-[10px] font-mono text-pink-400">{isPlaying ? "📻 Record Spinning..." : "⏸ Paused"}</p>
           </div>
 
+          {/* ── Play / Pause button — themed via buttonClass prop ── */}
           <button
             onClick={togglePlayback}
             disabled={!currentYoutubeUrl}
-            className={`p-4 text-white rounded-full shadow-md duration-150 transform hover:scale-105 cursor-pointer ${
+            className={`p-4 rounded-full shadow-md duration-150 transform hover:scale-105 cursor-pointer ${
               !currentYoutubeUrl
                 ? "bg-stone-300 cursor-not-allowed text-stone-500 hover:scale-100 shadow-none"
-                : "bg-pink-500 hover:bg-pink-600 active:bg-pink-700"
+                : buttonClass
             }`}
           >
             {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 fill-white ml-0.5" />}
           </button>
 
-          {/* Hidden audio player */}
           {youtubePlayer}
         </div>
 
-        {/* Dedications Feed */}
+        {/* Dedications feed */}
         <div className="bg-white p-4 rounded-xl border border-pink-100 shadow-xs max-h-[180px] overflow-y-auto">
           <h4 className="text-xs font-mono font-bold text-pink-500 uppercase mb-3 flex items-center gap-1.5 pb-2 border-b border-pink-100">
             🎶 dedications ({musics.length})
@@ -391,20 +348,12 @@ export default function MusicRoom({
           ) : (
             <div className="space-y-3">
               {musics.map((m) => (
-                <div
-                  key={m.id}
-                  className="text-xs bg-pink-50/30 p-2.5 border border-pink-100/50 rounded-lg flex justify-between items-start"
-                >
+                <div key={m.id} className="text-xs bg-pink-50/30 p-2.5 border border-pink-100/50 rounded-lg flex justify-between items-start">
                   <div className="max-w-[85%]">
-                    <button
-                      onClick={() => playMusicItem(m)}
-                      className="font-bold text-pink-900 hover:underline text-left cursor-pointer"
-                    >
+                    <button onClick={() => playMusicItem(m)} className="font-bold text-pink-900 hover:underline text-left cursor-pointer">
                       🎵 {m.title || "Custom Dedication"}
                     </button>
-                    {m.message && (
-                      <p className="italic text-pink-600 font-serif mt-1">"{m.message}"</p>
-                    )}
+                    {m.message && <p className="italic text-pink-600 font-serif mt-1">"{m.message}"</p>}
                     <p className="text-[9px] font-mono text-pink-400 mt-1">
                       by <span className="font-semibold text-pink-500">{m.creator}</span>
                     </p>
