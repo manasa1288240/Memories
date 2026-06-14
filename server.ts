@@ -37,6 +37,16 @@ const Scrapbook = mongoose.model("Scrapbook", scrapbookSchema);
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+// Set correct MIME types for static files
+app.use((req, res, next) => {
+  if (req.url.endsWith(".js")) {
+    res.type("application/javascript");
+  } else if (req.url.endsWith(".css")) {
+    res.type("text/css");
+  }
+  next();
+});
+
 // GET Latest Scrapbook
 app.get("/api/latest-scrapbook", async (req, res) => {
   try {
@@ -158,6 +168,12 @@ async function startServer() {
       // Let vite handle this
       req.url = "/";
       vite.middlewares(req, res, next);
+    });
+
+    // Global catch-all for SPA routing
+    app.get("*", (req, res, next) => {
+      res.type("text/html");
+      next();
     });
 
   } else {

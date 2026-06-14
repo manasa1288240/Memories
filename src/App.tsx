@@ -21,55 +21,118 @@ import MemoryCalendar from "./components/MemoryCalendar";
 // All class strings must be written in full so Tailwind's scanner keeps them.
 const THEME_CONFIG: Record<
   Scrapbook["theme"],
-  { bg: string; text: string; border: string; button: string; ring: string; activeToggle: string }
+  { 
+    bg: string; 
+    text: string; 
+    border: string; 
+    button: string; 
+    ring: string; 
+    activeToggle: string;
+    textLight: string;
+    textDark: string;
+    bgLight: string;
+    bgLighter: string;
+    borderLight: string;
+    hoverBg: string;
+    hoverText: string;
+    accent: string;
+  }
 > = {
   "Cherry Blossom": {
     bg: "bg-pink-50",
     text: "text-pink-600",
+    textLight: "text-pink-400",
+    textDark: "text-pink-950",
     border: "border-pink-200",
+    borderLight: "border-pink-100",
+    bgLight: "bg-pink-100",
+    bgLighter: "bg-pink-50/50",
     button: "bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white shadow-md shadow-pink-200",
     ring: "focus:ring-pink-300",
     activeToggle: "bg-pink-500 text-white shadow-xs",
+    hoverBg: "hover:bg-pink-100/30",
+    hoverText: "hover:text-pink-900",
+    accent: "text-pink-700",
   },
   "Ocean Breeze": {
-  bg: "bg-sky-50",
-  text: "text-cyan-700",
-  border: "border-cyan-200",
-  button: "bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 text-white shadow-md shadow-cyan-200",
-  ring: "focus:ring-cyan-300",
-  activeToggle: "bg-cyan-600 text-white shadow-xs",
+    bg: "bg-sky-50",
+    text: "text-cyan-700",
+    textLight: "text-cyan-400",
+    textDark: "text-cyan-950",
+    border: "border-cyan-200",
+    borderLight: "border-cyan-100",
+    bgLight: "bg-cyan-100",
+    bgLighter: "bg-cyan-50/50",
+    button: "bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 text-white shadow-md shadow-cyan-200",
+    ring: "focus:ring-cyan-300",
+    activeToggle: "bg-cyan-600 text-white shadow-xs",
+    hoverBg: "hover:bg-cyan-100/30",
+    hoverText: "hover:text-cyan-900",
+    accent: "text-cyan-600",
   },
   "Lavender Dreams": {
     bg: "bg-violet-50",
     text: "text-violet-600",
+    textLight: "text-violet-400",
+    textDark: "text-violet-950",
     border: "border-violet-200",
+    borderLight: "border-violet-100",
+    bgLight: "bg-violet-100",
+    bgLighter: "bg-violet-50/50",
     button: "bg-violet-500 hover:bg-violet-600 active:bg-violet-700 text-white shadow-md shadow-violet-200",
     ring: "focus:ring-violet-300",
     activeToggle: "bg-violet-500 text-white shadow-xs",
+    hoverBg: "hover:bg-violet-100/30",
+    hoverText: "hover:text-violet-900",
+    accent: "text-violet-700",
   },
   "Sage Serenity": {
-  bg: "bg-green-50",
-  text: "text-emerald-800",
-  border: "border-green-200",
-  button: "bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white shadow-md shadow-emerald-200",
-  ring: "focus:ring-emerald-300",
-  activeToggle: "bg-emerald-700 text-white shadow-xs",
+    bg: "bg-green-50",
+    text: "text-emerald-800",
+    textLight: "text-emerald-500",
+    textDark: "text-emerald-950",
+    border: "border-green-200",
+    borderLight: "border-green-100",
+    bgLight: "bg-green-100",
+    bgLighter: "bg-green-50/50",
+    button: "bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white shadow-md shadow-emerald-200",
+    ring: "focus:ring-emerald-300",
+    activeToggle: "bg-emerald-700 text-white shadow-xs",
+    hoverBg: "hover:bg-green-100/30",
+    hoverText: "hover:text-emerald-900",
+    accent: "text-emerald-700",
   },
   "Golden Sunflower": {
     bg: "bg-yellow-50",
     text: "text-yellow-700",
+    textLight: "text-yellow-500",
+    textDark: "text-yellow-950",
     border: "border-yellow-300",
+    borderLight: "border-yellow-100",
+    bgLight: "bg-yellow-100",
+    bgLighter: "bg-yellow-50/50",
     button: "bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700 text-white shadow-md shadow-yellow-200",
     ring: "focus:ring-yellow-300",
     activeToggle: "bg-yellow-500 text-white shadow-xs",
+    hoverBg: "hover:bg-yellow-100/30",
+    hoverText: "hover:text-yellow-900",
+    accent: "text-yellow-600",
   },
   "Berry Romance": {
     bg: "bg-rose-50",
     text: "text-rose-600",
+    textLight: "text-rose-400",
+    textDark: "text-rose-950",
     border: "border-rose-200",
+    borderLight: "border-rose-100",
+    bgLight: "bg-rose-100",
+    bgLighter: "bg-rose-50/50",
     button: "bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white shadow-md shadow-rose-200",
     ring: "focus:ring-rose-300",
     activeToggle: "bg-rose-500 text-white shadow-xs",
+    hoverBg: "hover:bg-rose-100/30",
+    hoverText: "hover:text-rose-900",
+    accent: "text-rose-700",
   },
 };
 
@@ -312,7 +375,7 @@ export default function App() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className={`min-h-screen ${tc.bg} text-[#831843] flex flex-col font-sans selection:bg-pink-200`}>
+    <div className={`min-h-screen ${tc.bg} ${tc.text} flex flex-col font-sans`} style={{ WebkitTextFillColor: 'inherit' }}>
 
       {/* Header */}
       <header className={`bg-white/90 backdrop-blur-md sticky top-0 z-30 border-b ${tc.border} px-6 py-4 shadow-[0_4px_24px_rgba(244,63,94,0.04)]`}>
@@ -321,7 +384,7 @@ export default function App() {
             <h1 className={`text-2xl md:text-3xl font-serif italic font-bold ${tc.text} leading-tight`}>
               {activeBoard ? activeBoard.title : "Our Eternal Scrapbook"}
             </h1>
-            <p className="text-pink-400 text-[10px] md:text-xs tracking-widest uppercase mt-0.5 font-sans font-semibold">
+            <p className={`${tc.textLight} text-[10px] md:text-xs tracking-widest uppercase mt-0.5 font-sans font-semibold`}>
               {activeBoard ? `Celebrating with ${activeBoard.recipient}` : "Celebrating the joy of knowing each other"}
             </p>
           </div>
@@ -330,12 +393,12 @@ export default function App() {
             {activeBoard && !isSharedView && (
               <>
                 {/* Edit / Preview toggle */}
-                <div className={`bg-pink-50 p-1 rounded-full flex items-center border ${tc.border} mr-1 shadow-inner`}>
+                <div className={`${tc.bgLight} p-1 rounded-full flex items-center border ${tc.border} mr-1 shadow-inner`}>
                   <button
                     id="toggle-mode-edit"
                     onClick={switchToEdit}
                     className={`px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold transition-all duration-150 flex items-center gap-1 cursor-pointer select-none ${
-                      !isPreviewMode ? tc.activeToggle : "text-pink-700 hover:text-pink-900 hover:bg-pink-100/30"
+                      !isPreviewMode ? tc.activeToggle : `${tc.accent} hover:${tc.textDark} ${tc.hoverBg}`
                     }`}
                   >
                     ✍️ Edit Mode
@@ -344,7 +407,7 @@ export default function App() {
                     id="toggle-mode-preview"
                     onClick={switchToPreview}
                     className={`px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold transition-all duration-150 flex items-center gap-1 cursor-pointer select-none ${
-                      isPreviewMode ? tc.activeToggle : "text-pink-700 hover:text-pink-900 hover:bg-pink-100/30"
+                      isPreviewMode ? tc.activeToggle : `${tc.accent} hover:${tc.textDark} ${tc.hoverBg}`
                     }`}
                   >
                     🎁 Preview Mode
@@ -384,8 +447,8 @@ export default function App() {
 
         {isLoading && (
           <div className="fixed inset-0 bg-white/60 backdrop-blur-xs z-50 flex flex-col items-center justify-center gap-2">
-            <span className="text-4xl animate-spin text-pink-500">🌸</span>
-            <p className="font-mono text-xs text-pink-600">Flipping physical parchment pages...</p>
+            <span className={`text-4xl animate-spin ${tc.textLight}`}>🌸</span>
+            <p className={`font-mono text-xs ${tc.text}`}>Flipping physical parchment pages...</p>
           </div>
         )}
 
@@ -398,7 +461,7 @@ export default function App() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white rounded-[40px] p-8 md:p-12 border border-pink-100 shadow-2xl"
+              className={`w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white rounded-[40px] p-8 md:p-12 border ${tc.borderLight} shadow-2xl`}
               style={{ display: bootstrapped ? undefined : "none" }}
             >
               {/* Left column — cover preview */}
@@ -433,15 +496,15 @@ export default function App() {
 
               {/* Right column — form */}
               <div className="lg:col-span-7">
-                <div className="bg-pink-50 rounded-3xl p-6 md:p-8 border border-pink-100 shadow-inner">
-                  <h3 className="font-serif text-lg font-bold text-pink-950 mb-4 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-pink-400 animate-pulse" />
+                <div className={`${tc.bgLight} rounded-3xl p-6 md:p-8 border ${tc.borderLight} shadow-inner`}>
+                  <h3 className={`font-serif text-lg font-bold ${tc.textDark} mb-4 flex items-center gap-2`}>
+                    <Sparkles className={`w-4 h-4 ${tc.textLight} animate-pulse`} />
                     Stitch a New Scrapbook
                   </h3>
 
                   <form onSubmit={handleCreateScrapbook} className="space-y-4">
                     <div>
-                      <label className="block text-[11px] font-mono font-bold text-pink-600 uppercase mb-1">Scrapbook Title</label>
+                      <label className={`block text-[11px] font-mono font-bold ${tc.text} uppercase mb-1`}>Scrapbook Title</label>
                       <input
                         id="input-new-board-title"
                         type="text"
@@ -449,13 +512,13 @@ export default function App() {
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
                         required
-                        className="w-full text-xs bg-white border border-pink-200 rounded-lg p-3 text-pink-900 outline-none focus:ring-1 focus:ring-pink-300"
+                        className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-3 ${tc.textDark} outline-none ${tc.ring}`}
                       />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[11px] font-mono font-bold text-pink-600 uppercase mb-1">Recipient Name</label>
+                        <label className={`block text-[11px] font-mono font-bold ${tc.text} uppercase mb-1`}>Recipient Name</label>
                         <input
                           id="input-new-board-recipient"
                           type="text"
@@ -463,11 +526,11 @@ export default function App() {
                           value={newRecipient}
                           onChange={(e) => setNewRecipient(e.target.value)}
                           required
-                          className="w-full text-xs bg-white border border-pink-200 rounded-lg p-3 text-pink-900 outline-none focus:ring-1 focus:ring-pink-300"
+                          className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-3 ${tc.textDark} outline-none ${tc.ring}`}
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] font-mono font-bold text-pink-600 uppercase mb-1">Sender Name</label>
+                        <label className={`block text-[11px] font-mono font-bold ${tc.text} uppercase mb-1`}>Sender Name</label>
                         <input
                           id="input-new-board-creator"
                           type="text"
@@ -475,19 +538,19 @@ export default function App() {
                           value={newCreator}
                           onChange={(e) => setNewCreator(e.target.value)}
                           required
-                          className="w-full text-xs bg-white border border-pink-200 rounded-lg p-3 text-pink-900 outline-none focus:ring-1 focus:ring-pink-300"
+                          className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-3 ${tc.textDark} outline-none ${tc.ring}`}
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[11px] font-mono font-bold text-pink-600 uppercase mb-1">Occasion Type</label>
+                        <label className={`block text-[11px] font-mono font-bold ${tc.text} uppercase mb-1`}>Occasion Type</label>
                         <select
                           id="select-new-board-ocassion"
                           value={newType}
                           onChange={(e) => setNewType(e.target.value as any)}
-                          className="w-full text-xs bg-white border border-pink-200 rounded-lg p-3 text-pink-900 focus:ring-1 focus:ring-pink-300"
+                          className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-3 ${tc.textDark} ${tc.ring}`}
                         >
                           <option value="birthday">Birthday</option>
                           <option value="anniversary">Anniversary</option>
@@ -495,12 +558,12 @@ export default function App() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[11px] font-mono font-bold text-pink-600 uppercase mb-1">Theme</label>
+                        <label className={`block text-[11px] font-mono font-bold ${tc.text} uppercase mb-1`}>Theme</label>
                         <select
                           id="select-new-board-theme"
                           value={newTheme}
                           onChange={(e) => setNewTheme(e.target.value as Scrapbook["theme"])}
-                          className="w-full text-xs bg-white border border-pink-200 rounded-lg p-3 text-pink-900 focus:ring-1 focus:ring-pink-300"
+                          className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-3 ${tc.textDark} ${tc.ring}`}
                         >
                           <option value="Cherry Blossom">🌸 Cherry Blossom</option>
                           <option value="Ocean Breeze">🌊 Ocean Breeze</option>
@@ -512,17 +575,18 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3.5 bg-pink-100/35 p-3 rounded-xl border border-pink-200/50 mt-1">
+                    <div className={`flex items-center gap-3.5 ${tc.bgLighter} p-3 rounded-xl border ${tc.borderLight} mt-1`}>
                       <input
                         id="checkbox-new-board-include-calendar"
                         type="checkbox"
                         checked={newIncludeCalendar}
                         onChange={(e) => setNewIncludeCalendar(e.target.checked)}
-                        className="w-4 h-4 text-pink-500 bg-white border-pink-300 rounded focus:ring-1 focus:ring-pink-300 cursor-pointer accent-pink-600"
+                        className={`w-4 h-4 accent-current bg-white rounded outline-none focus:ring-1`}
+                        style={{ accentColor: tc.activeToggle.includes('bg-') ? undefined : 'inherit' }}
                       />
-                      <label htmlFor="checkbox-new-board-include-calendar" className="text-xs font-semibold text-pink-900 cursor-pointer select-none leading-relaxed">
+                      <label htmlFor="checkbox-new-board-include-calendar" className={`text-xs font-semibold ${tc.textDark} cursor-pointer select-none leading-relaxed`}>
                         📅 Include Milestone Diary Calendar tracker on the collage card?
-                        <span className="block text-[10px] text-pink-500 font-normal mt-0.5">Let's you and contributors write dates & event milestones. Defaults to off.</span>
+                        <span className={`block text-[10px] ${tc.text} font-normal mt-0.5`}>Let's you and contributors write dates & event milestones. Defaults to off.</span>
                       </label>
                     </div>
 
@@ -554,50 +618,50 @@ export default function App() {
                 <div className="absolute top-0 right-0 w-32 h-32 opacity-15 pointer-events-none select-none text-7xl rotate-[20deg]">🌸</div>
 
                 {!isPreviewMode ? (
-                  <div className="space-y-3 bg-pink-50/50 p-5 rounded-3xl border border-pink-100 w-full md:max-w-2xl relative z-10">
-                    <p className="text-[10px] font-mono font-extrabold uppercase text-pink-600 flex items-center gap-1.5">
+                  <div className={`space-y-3 ${tc.bgLighter} p-5 rounded-3xl border ${tc.borderLight} w-full md:max-w-2xl relative z-10`}>
+                    <p className={`text-[10px] font-mono font-extrabold uppercase ${tc.text} flex items-center gap-1.5`}>
                       <span>✏️</span> Edit Coversheet Details
                     </p>
                     <div className="space-y-3">
                       <div>
-                        <label className="block text-[10px] font-mono text-pink-500 font-bold uppercase mb-0.5">Scrapbook Title</label>
+                        <label className={`block text-[10px] font-mono ${tc.text} font-bold uppercase mb-0.5`}>Scrapbook Title</label>
                         <input
                           type="text"
                           value={activeBoard.title}
                           onChange={(e) => setActiveBoard({ ...activeBoard, title: e.target.value })}
-                          className="w-full text-sm font-serif font-extrabold text-[#5c0f2e] bg-white border border-pink-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-pink-400"
+                          className={`w-full text-sm font-serif font-extrabold ${tc.textDark} bg-white border ${tc.border} rounded-lg px-3 py-2 outline-none ${tc.ring}`}
                           placeholder="My Surprise Scrapbook"
                         />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[10px] font-mono text-pink-500 font-bold uppercase mb-0.5">Recipient Name</label>
+                          <label className={`block text-[10px] font-mono ${tc.text} font-bold uppercase mb-0.5`}>Recipient Name</label>
                           <input
                             type="text"
                             value={activeBoard.recipient}
                             onChange={(e) => setActiveBoard({ ...activeBoard, recipient: e.target.value })}
-                            className="w-full text-xs font-serif font-black text-[#5c0f2e] bg-white border border-pink-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-pink-400"
+                            className={`w-full text-xs font-serif font-black ${tc.textDark} bg-white border ${tc.border} rounded-lg px-3 py-2 outline-none ${tc.ring}`}
                             placeholder="John Doe"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-mono text-pink-500 font-bold uppercase mb-0.5">Creator Name</label>
+                          <label className={`block text-[10px] font-mono ${tc.text} font-bold uppercase mb-0.5`}>Creator Name</label>
                           <input
                             type="text"
                             value={activeBoard.creator}
                             onChange={(e) => setActiveBoard({ ...activeBoard, creator: e.target.value })}
-                            className="w-full text-xs font-serif font-black text-[#5c0f2e] bg-white border border-pink-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-pink-400"
+                            className={`w-full text-xs font-serif font-black ${tc.textDark} bg-white border ${tc.border} rounded-lg px-3 py-2 outline-none ${tc.ring}`}
                             placeholder="The College Crew"
                           />
                         </div>
                       </div>
                       {/* Theme selector inside editor */}
                       <div>
-                        <label className="block text-[10px] font-mono text-pink-500 font-bold uppercase mb-0.5">Theme</label>
+                        <label className={`block text-[10px] font-mono ${tc.text} font-bold uppercase mb-0.5`}>Theme</label>
                         <select
                           value={activeBoard.theme}
                           onChange={(e) => setActiveBoard({ ...activeBoard, theme: e.target.value as Scrapbook["theme"] })}
-                          className="w-full text-xs bg-white border border-pink-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-pink-400 text-pink-900"
+                          className={`w-full text-xs bg-white border ${tc.border} rounded-lg px-3 py-2 outline-none ${tc.ring} ${tc.textDark}`}
                         >
                           <option value="Cherry Blossom">🌸 Cherry Blossom</option>
                           <option value="Ocean Breeze">🌊 Ocean Breeze</option>
@@ -612,43 +676,45 @@ export default function App() {
                 ) : (
                   <div className="space-y-2 relative z-10">
                     <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 bg-pink-100 text-pink-700 text-[10px] font-mono font-bold rounded-full uppercase tracking-wider">
+                      <span className={`px-3 py-1 ${tc.bgLight} ${tc.text} text-[10px] font-mono font-bold rounded-full uppercase tracking-wider`}>
                         {activeBoard.type} scrapbook 🌸
                       </span>
                       <span className="px-3 py-1 bg-amber-50 text-amber-700 text-[10px] font-mono font-bold rounded-full uppercase tracking-wider">
                         {activeBoard.theme}
                       </span>
                     </div>
-                    <h2 className="font-serif text-2xl md:text-3xl font-extrabold text-pink-950 tracking-tight leading-tight">
+                    <h2 className={`font-serif text-2xl md:text-3xl font-extrabold ${tc.textDark} tracking-tight leading-tight`}>
                       {activeBoard.title}
                     </h2>
-                    <p className="text-sm text-pink-500 font-mono">
-                      Stitched by <span className="font-bold text-pink-600">{activeBoard.creator}</span> for our absolute favorite:{" "}
-                      <span className="font-extrabold text-pink-700 font-serif underline decoration-dotted">{activeBoard.recipient}</span> ❤️
+                    <p className={`text-sm ${tc.text} font-mono`}>
+                      Stitched by <span className={`font-bold ${tc.text}`}>{activeBoard.creator}</span> for our absolute favorite:{" "}
+                      <span className={`font-extrabold ${tc.accent} font-serif underline decoration-dotted`}>{activeBoard.recipient}</span> ❤️
                     </p>
                   </div>
                 )}
 
-                <div className={`bg-pink-50 p-4 rounded-3xl border ${tc.border} ring-4 ring-white text-center min-w-[200px] self-stretch md:self-auto flex flex-col justify-center`}>
-                  <p className="text-[10px] font-mono font-bold uppercase text-pink-500">Milestone Surprise Board</p>
-                  <p className="text-[10px] text-pink-900 mt-1 leading-snug">All wishes and additions are synced live instantly.</p>
+                <div className={`${tc.bgLight} p-4 rounded-3xl border ${tc.border} ring-4 ring-white text-center min-w-[200px] self-stretch md:self-auto flex flex-col justify-center`}>
+                  <p className={`text-[10px] font-mono font-bold uppercase ${tc.text}`}>Milestone Surprise Board</p>
+                  <p className={`text-[10px] ${tc.textDark} mt-1 leading-snug`}>All wishes and additions are synced live instantly.</p>
                 </div>
               </div>
 
               {/* Preview banner */}
               {isPreviewMode && !isSharedView && (
-                <div className="mb-8 bg-gradient-to-r from-pink-500 to-rose-500 text-white p-5 rounded-[30px] border border-pink-400/30 shadow-lg flex flex-col sm:flex-row gap-4 items-center justify-between select-none">
+                <div className={`mb-8 text-white p-5 rounded-[30px] border border-current/10 shadow-lg flex flex-col sm:flex-row gap-4 items-center justify-between select-none`} style={{ 
+                  background: tc.button.includes('bg-') ? `linear-gradient(to right, var(--tw-gradient-stops))` : undefined
+                }}>
                   <div className="flex items-center gap-3">
                     <span className="text-3xl animate-bounce">🎁</span>
                     <div>
                       <h4 className="text-sm font-bold tracking-tight">Recipient Preview Mode Active</h4>
-                      <p className="text-xs text-pink-100 mt-0.5">This is exactly how {activeBoard.recipient} will view your dedicated surprise scrapbook!</p>
+                      <p className="text-xs opacity-90 mt-0.5">This is exactly how {activeBoard.recipient} will view your dedicated surprise scrapbook!</p>
                     </div>
                   </div>
                   <button
                     id="exit-preview-banner-btn"
                     onClick={switchToEdit}
-                    className="px-5 py-2.5 bg-white text-pink-600 hover:bg-pink-50 active:scale-95 duration-100 rounded-full text-xs font-bold cursor-pointer flex items-center gap-1.5 shrink-0 shadow-sm"
+                    className={`px-5 py-2.5 bg-white ${tc.text} ${tc.hoverBg} active:scale-95 duration-100 rounded-full text-xs font-bold cursor-pointer flex items-center gap-1.5 shrink-0 shadow-sm`}
                   >
                     ✍️ Return to Editor Mode
                   </button>
@@ -676,10 +742,7 @@ export default function App() {
                       <h3 className="font-serif italic text-xl md:text-3xl font-black text-pink-950 flex items-center gap-2">
                         <span>📖</span> {activeBoard.recipient}'s Surprises & Memories Collage
                       </h3>
-                      <p className="text-xs text-pink-500/90 mt-1">A collaborative physical canvas where letters, scratch polaroids, music vinyl and fresh florist bouquets live together.</p>
-                    </div>
-                    <div className="text-[10px] font-mono font-black text-pink-400 select-none bg-pink-50 px-2.5 py-1 rounded-full border border-pink-100/60">
-                      💖 PHYSICAL COLLAGE SHEETS
+                      <p className={`text-xs ${tc.textLight} mt-1`}>A collaborative physical canvas where letters, scratch polaroids, music vinyl and fresh florist bouquets live together.</p>
                     </div>
                   </div>
 
@@ -798,15 +861,15 @@ export default function App() {
 
               {/* Contribution corner — edit mode only */}
               {!isPreviewMode && (
-                <div className="mt-2 mb-12 bg-white border border-pink-100 rounded-[35px] shadow-xl p-6 md:p-8 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-pink-100/30 rounded-full blur-2xl pointer-events-none" />
+                <div className={`mt-2 mb-12 bg-white border ${tc.borderLight} rounded-[35px] shadow-xl p-6 md:p-8 relative overflow-hidden`}>
+                  <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl pointer-events-none`} style={{ background: `${tc.bgLight}30` }} />
 
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-pink-100 pb-4 mb-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b ${tc.borderLight} pb-4 mb-6">
                     <div>
-                      <h3 className="font-serif italic text-lg md:text-xl font-bold text-pink-900 flex items-center gap-2">
+                      <h3 className={`font-serif italic text-lg md:text-xl font-bold ${tc.textDark} flex items-center gap-2`}>
                         <span>✨</span> Cozy Contribution Corner
                       </h3>
-                      <p className="text-xs text-pink-500 mt-0.5">Select a keepsake category to craft and add your digital surprise onto the live collage above!</p>
+                      <p className={`text-xs ${tc.text} mt-0.5`}>Select a keepsake category to craft and add your digital surprise onto the live collage above!</p>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
@@ -818,7 +881,7 @@ export default function App() {
                             type="button"
                             onClick={() => setActiveCraftTab(activeCraftTab === tab ? null : tab)}
                             className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 cursor-pointer select-none ${
-                              activeCraftTab === tab ? `${tc.activeToggle} shadow` : "bg-pink-50 text-pink-700 hover:bg-pink-100"
+                              activeCraftTab === tab ? `${tc.activeToggle} shadow` : `${tc.bgLight} ${tc.text} hover:${tc.bgLight}`
                             }`}
                           >
                             {labels[tab]}
@@ -830,7 +893,7 @@ export default function App() {
                           type="button"
                           onClick={() => setActiveCraftTab(activeCraftTab === "calendar" ? null : "calendar")}
                           className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 cursor-pointer select-none ${
-                            activeCraftTab === "calendar" ? `${tc.activeToggle} shadow` : "bg-pink-50 text-pink-700 hover:bg-pink-100"
+                            activeCraftTab === "calendar" ? `${tc.activeToggle} shadow` : `${tc.bgLight} ${tc.text} hover:${tc.bgLight}`
                           }`}
                         >
                           📅 Calendar Entry
@@ -844,9 +907,10 @@ export default function App() {
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-center py-6 border border-dashed border-pink-150 rounded-2xl bg-pink-50/10"
+                        className={`text-center py-6 border border-dashed rounded-2xl`}
+                        style={{ borderColor: tc.borderLight.split('-').slice(1).join('-'), backgroundColor: `${tc.bg}10` }}
                       >
-                        <p className="text-xs text-pink-500 font-mono">💡 Select any keepsake above to expand its crafting toolbox form!</p>
+                        <p className={`text-xs ${tc.text} font-mono`}>💡 Select any keepsake above to expand its crafting toolbox form!</p>
                       </motion.div>
                     ) : (
                       <motion.div
@@ -854,20 +918,21 @@ export default function App() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="p-4 bg-pink-50/20 rounded-2xl border border-pink-200/50"
+                        className={`p-4 rounded-2xl border ${tc.borderLight}/50`}
+                        style={{ backgroundColor: `${tc.bg}` }}
                       >
                         {activeCraftTab === "photo" && (
                           <form onSubmit={handleAddPhoto} className="space-y-4">
-                            <h4 className="font-serif text-sm font-bold text-pink-900 border-b border-pink-100 pb-1 flex items-center gap-1.5">
+                            <h4 className={`font-serif text-sm font-bold ${tc.textDark} border-b ${tc.borderLight} pb-1 flex items-center gap-1.5`}>
                               <span>📸</span> Design Custom Scratch Polaroid
                             </h4>
-                            <div className="flex gap-3 border-b border-pink-100/40 pb-2 mb-2">
+                            <div className={`flex gap-3 border-b ${tc.borderLight}/40 pb-2 mb-2`}>
                               {(["url", "file"] as const).map((t) => (
                                 <button
                                   key={t}
                                   type="button"
                                   onClick={() => setPhotoUploadType(t)}
-                                  className={`text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all ${photoUploadType === t ? `${tc.activeToggle}` : "bg-white text-pink-600 border border-pink-100"}`}
+                                  className={`text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all ${photoUploadType === t ? `${tc.activeToggle}` : `bg-white ${tc.text} border ${tc.borderLight}`}`}
                                 >
                                   {t === "url" ? "Paste Photo Link 🔗" : "Upload Device Image 📁"}
                                 </button>
@@ -876,31 +941,31 @@ export default function App() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {photoUploadType === "url" ? (
                                 <div>
-                                  <label className="block text-[10px] font-mono font-bold text-pink-600 uppercase mb-1">Image Link URL</label>
-                                  <input type="url" placeholder="https://images.unsplash.com/..." value={photoSrc} onChange={(e) => setPhotoSrc(e.target.value)} required className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} text-pink-900`} />
+                                  <label className={`block text-[10px] font-mono font-bold ${tc.text} uppercase mb-1`}>Image Link URL</label>
+                                  <input type="url" placeholder="https://images.unsplash.com/..." value={photoSrc} onChange={(e) => setPhotoSrc(e.target.value)} required className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} ${tc.textDark}`} />
                                 </div>
                               ) : (
                                 <div>
-                                  <label className="block text-[10px] font-mono font-bold text-pink-600 uppercase mb-1">Select Local Image File</label>
-                                  <input type="file" accept="image/*" onChange={handlePhotoFileChange} required={photoUploadType === "file" && !photoSrc} className="w-full text-[11px] text-pink-800" />
+                                  <label className={`block text-[10px] font-mono font-bold ${tc.text} uppercase mb-1`}>Select Local Image File</label>
+                                  <input type="file" accept="image/*" onChange={handlePhotoFileChange} required={photoUploadType === "file" && !photoSrc} className={`w-full text-[11px] ${tc.text}`} />
                                 </div>
                               )}
                               <div>
-                                <label className="block text-[10px] font-mono font-bold text-pink-600 uppercase mb-1">Your Signature / Name</label>
-                                <input type="text" placeholder="E.g. Sister Jasmine" value={photoCreator} onChange={(e) => setPhotoCreator(e.target.value)} className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} text-pink-900`} />
+                                <label className={`block text-[10px] font-mono font-bold ${tc.text} uppercase mb-1`}>Your Signature / Name</label>
+                                <input type="text" placeholder="E.g. Sister Jasmine" value={photoCreator} onChange={(e) => setPhotoCreator(e.target.value)} className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} ${tc.textDark}`} />
                               </div>
                             </div>
                             <div>
-                              <label className="block text-[10px] font-mono font-bold text-pink-600 uppercase mb-1">Polaroid Caption Text</label>
-                              <input type="text" placeholder="E.g. Remember our beach roadtrip? 🏖️" value={photoCaption} onChange={(e) => setPhotoCaption(e.target.value)} required className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} text-pink-900`} />
+                              <label className={`block text-[10px] font-mono font-bold ${tc.text} uppercase mb-1`}>Polaroid Caption Text</label>
+                              <input type="text" placeholder="E.g. Remember our beach roadtrip? 🏖️" value={photoCaption} onChange={(e) => setPhotoCaption(e.target.value)} required className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} ${tc.textDark}`} />
                             </div>
                             {photoSrc && (
-                              <div className="mt-2.5 flex items-center gap-3 bg-white p-2 rounded-xl border border-pink-100 w-fit">
-                                <img src={photoSrc} alt="Preview" className="w-16 h-16 object-cover rounded-lg border border-pink-100" referrerPolicy="no-referrer" />
-                                <span className="text-[10px] text-pink-500 font-mono">Image loaded successfully!</span>
+                              <div className={`mt-2.5 flex items-center gap-3 bg-white p-2 rounded-xl border ${tc.borderLight} w-fit`}>
+                                <img src={photoSrc} alt="Preview" className={`w-16 h-16 object-cover rounded-lg border ${tc.borderLight}`} referrerPolicy="no-referrer" />
+                                <span className={`text-[10px] ${tc.text} font-mono`}>Image loaded successfully!</span>
                               </div>
                             )}
-                            <div className="flex justify-end pt-2 border-t border-pink-100">
+                            <div className={`flex justify-end pt-2 border-t ${tc.borderLight}`}>
                               <button type="submit" className={`px-5 py-2 ${tc.button} font-bold text-xs rounded-xl cursor-pointer`}>
                                 Stash Polaroid into Collage 🖼️
                               </button>
@@ -910,13 +975,13 @@ export default function App() {
 
                         {activeCraftTab === "note" && (
                           <form onSubmit={handleAddNote} className="space-y-4">
-                            <h4 className="font-serif text-sm font-bold text-pink-900 border-b border-pink-100 pb-1 flex items-center gap-1.5">
+                            <h4 className={`font-serif text-sm font-bold ${tc.textDark} border-b ${tc.borderLight} pb-1 flex items-center gap-1.5`}>
                               <span>📝</span> Write Lovely Sticky Blessing Card
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-[10px] font-mono font-bold text-pink-600 uppercase mb-1">Aesthetic Paper Background</label>
-                                <select value={notePaper} onChange={(e) => setNotePaper(e.target.value as any)} className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2 outline-none ${tc.ring} text-pink-900`}>
+                                <label className={`block text-[10px] font-mono font-bold ${tc.text} uppercase mb-1`}>Aesthetic Paper Background</label>
+                                <select value={notePaper} onChange={(e) => setNotePaper(e.target.value as any)} className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2 outline-none ${tc.ring} ${tc.textDark}`}>
                                   <option value="ruled">Ruled Margin Notebook 📜</option>
                                   <option value="floral">Vintage Pink Blossom Petals 🌸</option>
                                   <option value="grid">Cozy Memo Planner Grid 🗒️</option>
@@ -924,8 +989,8 @@ export default function App() {
                                 </select>
                               </div>
                               <div>
-                                <label className="block text-[10px] font-mono font-bold text-pink-600 uppercase mb-1">Handwriting Font Style</label>
-                                <select value={noteFont} onChange={(e) => setNoteFont(e.target.value as any)} className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2 outline-none ${tc.ring} text-pink-900`}>
+                                <label className={`block text-[10px] font-mono font-bold ${tc.text} uppercase mb-1`}>Handwriting Font Style</label>
+                                <select value={noteFont} onChange={(e) => setNoteFont(e.target.value as any)} className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2 outline-none ${tc.ring} ${tc.textDark}`}>
                                   <option value="cursive">Classic Script Calligraphy 🖋️</option>
                                   <option value="handwriting">Nostalgic Playful Scribble ✏️</option>
                                   <option value="serif">Formal Vintage Book Serif 📚</option>
@@ -935,15 +1000,15 @@ export default function App() {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                               <div className="md:col-span-8">
-                                <label className="block text-[10px] font-mono font-bold text-pink-600 uppercase mb-1">Message to Loved One</label>
-                                <input type="text" placeholder="I wish you a breathtaking year..." value={noteText} onChange={(e) => setNoteText(e.target.value)} required className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} text-pink-900`} />
+                                <label className={`block text-[10px] font-mono font-bold ${tc.text} uppercase mb-1`}>Message to Loved One</label>
+                                <input type="text" placeholder="I wish you a breathtaking year..." value={noteText} onChange={(e) => setNoteText(e.target.value)} required className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} ${tc.textDark}`} />
                               </div>
                               <div className="md:col-span-4">
-                                <label className="block text-[10px] font-mono font-bold text-pink-600 uppercase mb-1">Your Signature Name</label>
-                                <input type="text" placeholder="Aunt May" value={noteCreator} onChange={(e) => setNoteCreator(e.target.value)} className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} text-pink-900`} />
+                                <label className={`block text-[10px] font-mono font-bold ${tc.text} uppercase mb-1`}>Your Signature Name</label>
+                                <input type="text" placeholder="Aunt May" value={noteCreator} onChange={(e) => setNoteCreator(e.target.value)} className={`w-full text-xs bg-white border ${tc.border} rounded-lg p-2.5 outline-none ${tc.ring} ${tc.textDark}`} />
                               </div>
                             </div>
-                            <div className="flex justify-end pt-2 border-t border-pink-100">
+                            <div className={`flex justify-end pt-2 border-t ${tc.borderLight}`}>
                               <button type="submit" className={`px-5 py-2 ${tc.button} font-bold text-xs rounded-xl cursor-pointer`}>
                                 Stick Note onto Collage 📝
                               </button>
@@ -978,10 +1043,10 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      <footer className="border-t border-pink-100/60 mt-12 py-8 px-4 text-center">
+      <footer className={`border-t ${tc.borderLight} mt-12 py-8 px-4 text-center`}>
         <div className="max-w-4xl mx-auto space-y-1 text-slate-500 text-xs">
-          <p className="font-semibold text-pink-900">Our Eternal Scrapbook • Elegant, Collaborative and Secure</p>
-          <p className="text-[10px] text-pink-400">Made with sweet shades of rose and cherry blossom pink for your special milestones. ❤️</p>
+          <p className={`font-semibold ${tc.textDark}`}>Our Eternal Scrapbook • Elegant, Collaborative and Secure</p>
+          <p className={`text-[10px] ${tc.textLight}`}>Made with sweet shades of rose and cherry blossom pink for your special milestones. ❤️</p>
         </div>
       </footer>
     </div>
